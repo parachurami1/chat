@@ -1,6 +1,7 @@
 import socket
-#import asyncio
+import threading
 
+terminate_flag = threading.Event()
 s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 port=223
 
@@ -11,10 +12,17 @@ def send(msg):
 
 def recv():
     try:
-        msg = target.recv(1024)
-        print(decrypt(msg.decode()))
-    except:
-        connection()
+        while not terminate_flag.is_set():
+            msg = target.recv(1024)
+            if not msg:
+                break
+            # if decrypt(msg.decode()) == "quit":
+            #     a = decrypt(msg.decode())
+            print("\nReceived message: " + decrypt(msg.decode()))
+    except ConnectionResetError:
+        print("Connection reset by peer")
+    except ConnectionAbortedError:
+        print("Connection aborted, try again")
 
 def encrypt(data):
     data = str(data)
@@ -46,15 +54,22 @@ def decrypt(data):
 
 
 def connection():
-    while True:
-        msg = input("")
-        if msg == "quit":
+    try:
+        rec = threading.Thread(target=recv)
+        rec.start()
+        while True:
+            msg = input("Enter your message: ")
+            # if msg == "quit":
+            #     send(msg)
+            #     print("You exitted the program")
+            #     terminate_flag.set()
+            #     break
             send(msg)
-            s.close()
-            break
-        else:
-            send(msg)
-            recv()
+    except Exception as e:
+        print(f"An unexpected error occured: {e}")
+    finally:
+        s.close()
+        target.close()
     
 
 s.bind(("192.168.0.160",223))
