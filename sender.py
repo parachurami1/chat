@@ -3,7 +3,10 @@ import threading
 
 terminate_flag = threading.Event()
 s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-port=223
+PORT=223
+SERVER = socket.gethostbyname(socket.gethostname())
+bind = (SERVER,PORT)
+
 
 def send(msg):
     msg = str(msg)
@@ -72,7 +75,7 @@ def connection():
         target.close()
     
 
-s.bind(("192.168.0.160",223))
+s.bind(bind)
 s.listen(5)
 target,ip = s.accept()
 print("Connected to ",ip)

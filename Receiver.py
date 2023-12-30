@@ -2,7 +2,7 @@ import socket
 import threading
 
 s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-ip = input("Input ip address ")
+ip = input("Input ip address of host ")
 port=223
 terminate_flag = threading.Event()
 
